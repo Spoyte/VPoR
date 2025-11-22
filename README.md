@@ -47,10 +47,6 @@ Prerequisites
  * Foundry (for EVVM contracts)
  * Metamask (for local decryption)
 1. Deploy the Ledger (EVVM)
-cd contracts
-forge install
-# Deploy to MATE Testnet (Sepolia)
-forge create --rpc-url $MATE_RPC_URL --private-key $PK src/GlassVault.sol:GlassVault
 
 2. Run the Chainlink Function (Asset Check)
 cd assets-verifier
