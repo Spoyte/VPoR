@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VPoR Frontend
 
-## Getting Started
+Glass Vault interface for Verifiable Proof of Reserves.
 
-First, run the development server:
+## Prerequisites
+
+- **Node.js >= 20.9.0** (current: v18.20.8 - needs upgrade)
+- npm or yarn
+
+## Setup
+
+### 1. Upgrade Node.js (Required)
+
+The project uses Next.js 16 which requires Node.js >= 20.9.0.
+
+**Using nvm (recommended):**
+```bash
+nvm install 20
+nvm use 20
+```
+
+**Or download from:** https://nodejs.org/
+
+### 2. Install Dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### 3. Configure WalletConnect
+
+Get a project ID from [WalletConnect Cloud](https://cloud.walletconnect.com/) and update `app/providers.tsx`:
+
+```typescript
+const config = getDefaultConfig({
+  appName: 'VPoR - Glass Vault',
+  projectId: 'YOUR_PROJECT_ID_HERE', // Replace this
+  chains: [sepolia],
+  ssr: true,
+});
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### ✅ Implemented (Mock Data)
 
-## Learn More
+- **Glassmorphism UI** - Modern, sleek design with glass effects
+- **Wallet Connection** - RainbowKit integration for Ethereum wallets
+- **Solvency Dashboard** - Public view of exchange assets vs liabilities
+- **User Verification** - Private balance decryption (mock eth_decrypt)
 
-To learn more about Next.js, take a look at the following resources:
+### 🔄 Next Steps
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Connect to actual VPoR Chain (EVVM testnet)
+- Replace mock data with contract reads
+- Implement real `eth_decrypt` for privacy
+- Add Merkle proof verification
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+frontend/
+├── app/
+│   ├── globals.css        # Glassmorphism styles
+│   ├── layout.tsx         # Root layout with providers
+│   ├── page.tsx          # Main dashboard page
+│   └── providers.tsx      # Web3 providers (Wagmi/RainbowKit)
+├── components/
+│   ├── GlassCard.tsx      # Reusable glass card component
+│   ├── Navbar.tsx         # Top navigation with wallet button
+│   ├── SolvencyDashboard.tsx # Public solvency metrics
+│   └── UserVerification.tsx  # Private balance verification
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Next.js 16** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS 4** - Styling
+- **RainbowKit** - Wallet connection
+- **Wagmi** - Ethereum hooks
+- **Viem** - Ethereum client
+- **Framer Motion** - Animations
+
+---
+
+**Built for ETHGlobal Buenos Aires Hackathon**
