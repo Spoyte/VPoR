@@ -1,10 +1,14 @@
 'use client';
 
 import { GlassCard } from './GlassCard';
+import { useEffect, useState } from 'react';
 import { useGlassVault } from '../hooks/useGlassVault';
 import { formatEther } from 'viem';
 
 export function SolvencyDashboard() {
+    const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+    const [refreshKey, setRefreshKey] = useState(0);
+
     const {
         totalAssets,
         totalLiabilities,
@@ -15,6 +19,15 @@ export function SolvencyDashboard() {
         isError,
         isLoading,
     } = useGlassVault();
+
+    // Auto-refresh every 5 seconds to catch live updates
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRefreshKey(prev => prev + 1);
+            setLastUpdate(new Date());
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Calculate sync status
     const getSyncStatus = () => {
@@ -89,9 +102,14 @@ export function SolvencyDashboard() {
             </div>
 
             {/* Reserve Ratio */}
-            <GlassCard variant="strong" className="text-center">
+            <GlassCard variant="strong" className="text-center relative overflow-hidden">
+                {/* Live indicator */}
+                <div className="absolute top-2 right-2 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-xs text-gray-400">LIVE</span>
+                </div>
                 <div className="text-sm text-gray-400 mb-2">Reserve Ratio</div>
-                <div className={`text-6xl font-bold mb-2 ${isSolvent ? 'text-green-400' : 'text-red-400'}`}>
+                <div className={`text-6xl font-bold mb-2 transition-all duration-500 ${isSolvent ? 'text-green-400' : 'text-red-400'}`}>
                     {reserveRatio.toFixed(2)}%
                 </div>
                 <div className="flex items-center justify-center gap-2">

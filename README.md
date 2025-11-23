@@ -111,6 +111,24 @@ This script will:
 4. **Start Frontend** - `cd frontend && npm run dev`
 5. **Open Browser** - http://localhost:3000
 
+### 🎬 Live Demo Mode (Optional)
+
+To see assets update in real-time (simulating Chainlink):
+
+```bash
+# In a separate terminal after setup
+cd backend
+GLASS_VAULT_ADDRESS=<addr> npm run simulate
+```
+
+This will:
+- Update assets every 10 seconds
+- Cycle through different solvency scenarios (105%, 110%, 98%, 100%, 115%)
+- Show the "LIVE" indicator on the frontend
+- Demonstrate real-time solvency monitoring
+
+Watch the reserve ratio change on the dashboard!
+
 ## 📚 Documentation
 
 - **[QUICKSTART.md](QUICKSTART.md)** - Get running in 5 minutes
