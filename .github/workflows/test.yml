@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  FOUNDRY_PROFILE: default
+
+jobs:
+  contracts:
+    name: Contracts (Foundry)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Show Forge version
+        run: forge --version
+
+      - name: Run Forge Tests
+        run: |
+          cd contracts
+          forge test -vv
+        env:
+          # Set dummy env vars if needed, though tests usually mock them
+          RPC_URL_SEPOLIA: "http://localhost:8545"
+          RPC_URL_ARBITRUM_SEPOLIA: "http://localhost:8545"
+          PRIVATE_KEY: "0x0000000000000000000000000000000000000000000000000000000000000001"
+
+  backend:
+    name: Backend (Node.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          npm test
+
+  frontend:
+    name: Frontend (Build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
