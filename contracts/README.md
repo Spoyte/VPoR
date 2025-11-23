@@ -52,6 +52,28 @@ cp .env.example .env
 # Deploy GlassVault
 forge create --rpc-url <RPC_URL> --private-key <PRIVATE_KEY> src/GlassVault.sol:GlassVault
 
-# Deploy Adapter
-forge create --rpc-url <RPC_URL> --private-key <PRIVATE_KEY> src/ChainlinkEVVMAdapter.sol:ChainlinkEVVMAdapter --constructor-args <GLASS_VAULT_ADDRESS>
+
+## Chainlink Integration
+
+### Scripts
+Located in `contracts/chainlink/`.
+
+- `source.js`: The JavaScript code executed by the Chainlink DON. Fetches BTC balance.
+- `sim.js`: Local simulation script to verify `source.js`.
+
+### Running Simulation
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run the simulation:
+   ```bash
+   node contracts/chainlink/sim.js
+   ```
+
+### Deployment (Bridge)
+The `ChainlinkEVVMBridge` contract is deployed on Sepolia.
+
+```bash
+forge create --rpc-url $RPC_URL_SEPOLIA --private-key $PRIVATE_KEY src/ChainlinkEVVMBridge.sol:ChainlinkEVVMBridge --constructor-args <ROUTER_ADDRESS> <DON_ID> <GLASS_VAULT_ADDRESS>
 ```
