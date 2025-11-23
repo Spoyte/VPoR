@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {Evvm} from "@evvm/testnet-contracts/contracts/evvm/Evvm.sol";
-import {EvvmStructs} from "@evvm/testnet-contracts/interfaces/IEvvm.sol";
+import {EvvmStructs} from "@evvm/testnet-contracts/contracts/evvm/lib/EvvmStructs.sol";
 
 contract GlassVaultEVVM is Evvm {
     // --- State Variables ---
@@ -53,7 +53,20 @@ contract GlassVaultEVVM is Evvm {
 
     // --- Constructor ---
 
-    constructor() Evvm() {
+    constructor() Evvm(
+        msg.sender, // Initial Owner
+        address(0), // Staking Contract (Mock)
+        EvvmStructs.EvvmMetadata({
+            EvvmName: "VPoR Chain",
+            EvvmID: 1337,
+            principalTokenName: "VPoR Token",
+            principalTokenSymbol: "VPOR",
+            principalTokenAddress: address(0),
+            totalSupply: 1000000 ether,
+            eraTokens: 1000 ether,
+            reward: 10 ether
+        })
+    ) {
         isLiabilityPublisher[msg.sender] = true;
     }
 

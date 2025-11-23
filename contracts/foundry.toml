@@ -2,8 +2,12 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+via_ir = true
+optimizer = true
+optimizer_runs = 10000
+
 remappings = [
-    "@evvm/testnet-contracts/=../../misc/Testnet-Contracts/src/",
+    "@evvm/testnet-contracts/=lib/evvm/src/",
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
     "@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/"
 ]
