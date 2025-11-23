@@ -146,6 +146,11 @@ From a product standpoint, this yields a **live, privacy-preserving solvency das
   - Traditional PoR is a snapshot. VPoR is **continuous, programmatic solvency**.
   - Users get inclusion proofs, not just aggregated balance sheets.
 
+- **From Isolated Venues to Shared, Cross-Exchange Collateral**
+  - When multiple exchanges use the same VPoR EVVM instance (and the same `GlassVaultEVVM` state), a **user’s collateral map can be shared across venues with explicit user consent**.
+  - This unlocks **cross-exchange collateralization**: a user can let Exchange B verify that their assets are safely held (and not double‑counted) at Exchange A, without exposing raw identities or balances to the world.
+  - The result is better capital efficiency for users and institutions, while maintaining solvency guarantees and privacy.
+
 - **From Brand-Dependent to Protocol-Dependent Trust**
   - Today: trust is anchored in brand, marketing, and audits.
   - With VPoR: trust is anchored in **code, cryptography, and oracle-verified data**.
