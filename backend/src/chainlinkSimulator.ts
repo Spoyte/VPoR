@@ -17,12 +17,33 @@ async function simulateChainlinkAssetVerification() {
     console.log("==========================================\n");
 
     const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-    const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+    const privateKey = process.env.PRIVATE_KEY;
+    if (!privateKey) {
+        console.error('❌ PRIVATE_KEY env var not set. Set it in .env or export it before running.');
+        process.exit(1);
+    }
     const wallet = new ethers.Wallet(privateKey, provider);
 
-    const glassVaultAddress = process.env.GLASS_VAULT_ADDRESS;
+    // Resolve GlassVault address: env var → DEPLOYED_ADDRESS.txt → frontend/.env.local
+    const glassVaultAddress = process.env.GLASS_VAULT_ADDRESS || (() => {
+        const fs = require('fs');
+        const path = require('path');
+        // Try DEPLOYED_ADDRESS.txt at project root
+        try {
+            const addr = fs.readFileSync(path.resolve(__dirname, '../../DEPLOYED_ADDRESS.txt'), 'utf8').trim();
+            if (addr) return addr;
+        } catch (e) { }
+        // Try reading from frontend/.env.local
+        try {
+            const envPath = path.resolve(__dirname, '../../frontend/.env.local');
+            const envContent = fs.readFileSync(envPath, 'utf8');
+            const match = envContent.match(/NEXT_PUBLIC_GLASS_VAULT_ADDRESS=([0-9a-fA-Fx]+)/);
+            if (match && match[1]) return match[1];
+        } catch (e) { }
+        return undefined;
+    })();
     if (!glassVaultAddress) {
-        console.error("Please set GLASS_VAULT_ADDRESS env var");
+        console.error('❌ Could not determine GLASS_VAULT_ADDRESS. Set env var or ensure DEPLOYED_ADDRESS.txt or frontend/.env.local exists.');
         process.exit(1);
     }
 
