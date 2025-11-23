@@ -140,3 +140,4 @@ vite.config.ts.timestamp-*
 
 misc/*
 llm-full.md
+setup-demo.sh

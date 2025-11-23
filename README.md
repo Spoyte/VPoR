@@ -89,7 +89,21 @@ We use Chainlink to bridge "Real World Assets" (BTC Cold Wallets, Bank APIs) to 
 
 **Want to run it yourself? See [QUICKSTART.md](QUICKSTART.md) for a 5-minute setup guide.**
 
-### Or follow these steps:
+###OR Use the Automated Setup Script:
+
+```bash
+# One command to set everything up!
+./setup-demo.sh
+```
+
+This script will:
+1. Check if Anvil is running
+2. Deploy GlassVaultEVVM
+3. Submit liability proofs via Fisher
+4. Configure frontend environment
+5. Ready to run!
+
+### Or follow these steps manually:
 
 1. **Start Anvil** - `cd contracts && anvil`
 2. **Deploy Contract** - `forge script script/DeployGlassVault.s.sol --broadcast`

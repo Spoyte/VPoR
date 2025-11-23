@@ -12,18 +12,21 @@ export function SolvencyDashboard() {
         isSolvent,
         lastLiabilityUpdate,
         lastAssetUpdate,
+        isError,
+        isLoading,
     } = useGlassVault();
 
     // Calculate sync status
     const getSyncStatus = () => {
+        if (isError) return 'red';
         if (!lastLiabilityUpdate || !lastAssetUpdate) return 'yellow';
 
         const now = Math.floor(Date.now() / 1000);
         const liabilityAge = now - Number(lastLiabilityUpdate);
         const assetAge = now - Number(lastAssetUpdate);
 
-        // Red if assets > liabilities (insolvent)
-        if (!isSolvent) return 'red';
+        // Red if assets < liabilities (insolvent)
+        if (!isSolvent && totalLiabilities > 0n) return 'red';
         // Yellow if either update is > 1 hour old
         if (liabilityAge > 3600 || assetAge > 3600) return 'yellow';
         // Green otherwise
@@ -36,6 +39,35 @@ export function SolvencyDashboard() {
         yellow: 'bg-yellow-400',
         red: 'bg-red-400',
     };
+
+    if (isLoading) {
+        return (
+            <div className="space-y-6">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
+                        Exchange Solvency Monitor
+                    </h1>
+                    <p className="text-gray-400">Loading contract data...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="space-y-6">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
+                        Exchange Solvency Monitor
+                    </h1>
+                    <GlassCard className="mt-4">
+                        <p className="text-yellow-400 mb-2">⚠️ Unable to connect to VPoR Chain</p>
+                        <p className="text-sm text-gray-400">Make sure Anvil is running and the contract is deployed</p>
+                    </GlassCard>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -51,7 +83,7 @@ export function SolvencyDashboard() {
                     <span className="text-sm text-gray-400">
                         {syncStatus === 'green' && 'Synced'}
                         {syncStatus === 'yellow' && 'Stale Data'}
-                        {syncStatus === 'red' && 'Insolvent'}
+                        {syncStatus === 'red' && isError ? 'Connection Error' : 'Insolvent'}
                     </span>
                 </div>
             </div>

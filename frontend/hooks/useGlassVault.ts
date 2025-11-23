@@ -4,42 +4,50 @@ import { GlassVaultEVVMABI, getGlassVaultAddress } from '../contracts/GlassVault
 export function useGlassVault() {
     const contractAddress = getGlassVaultAddress();
 
-    const { data: liabilityRoot, error: liabilityRootError } = useReadContract({
+    const { data: liabilityRoot, error: liabilityRootError, isLoading: isLoadingRoot } = useReadContract({
         address: contractAddress,
         abi: GlassVaultEVVMABI,
         functionName: 'liabilityRoot',
+        query: {
+            retry: false,
+        },
     });
 
-    const { data: totalLiabilities, error: totalLiabilitiesError } = useReadContract({
+    const { data: totalLiabilities, error: totalLiabilitiesError, isLoading: isLoadingLiabilities } = useReadContract({
         address: contractAddress,
         abi: GlassVaultEVVMABI,
         functionName: 'totalLiabilities',
+        query: {
+            retry: false,
+        },
     });
 
-    const { data: totalAssets, error: totalAssetsError } = useReadContract({
+    const { data: totalAssets, error: totalAssetsError, isLoading: isLoadingAssets } = useReadContract({
         address: contractAddress,
         abi: GlassVaultEVVMABI,
         functionName: 'totalAssets',
+        query: {
+            retry: false,
+        },
     });
 
     const { data: lastLiabilityUpdate, error: lastLiabilityUpdateError } = useReadContract({
         address: contractAddress,
         abi: GlassVaultEVVMABI,
         functionName: 'lastLiabilityUpdate',
+        query: {
+            retry: false,
+        },
     });
 
     const { data: lastAssetUpdate, error: lastAssetUpdateError } = useReadContract({
         address: contractAddress,
         abi: GlassVaultEVVMABI,
         functionName: 'lastAssetUpdate',
+        query: {
+            retry: false,
+        },
     });
-
-    // Log errors for debugging
-    if (liabilityRootError) console.error('liabilityRoot error:', liabilityRootError);
-    if (totalLiabilitiesError) console.error('totalLiabilities error:', totalLiabilitiesError);
-    if (totalAssetsError) console.error('totalAssets error:', totalAssetsError);
-    if (lastLiabilityUpdateError) console.error('lastLiabilityUpdate error:', lastLiabilityUpdateError);
-    if (lastAssetUpdateError) console.error('lastAssetUpdate error:', lastAssetUpdateError);
 
     // Calculate solvency metrics safely
     const reserveRatio = totalAssets && totalLiabilities && totalLiabilities > 0n
@@ -50,6 +58,9 @@ export function useGlassVault() {
         ? totalAssets >= totalLiabilities
         : false;
 
+    const isLoading = isLoadingRoot || isLoadingLiabilities || isLoadingAssets;
+    const hasError = !!(totalLiabilitiesError || totalAssetsError);
+
     return {
         liabilityRoot,
         totalLiabilities,
@@ -58,6 +69,7 @@ export function useGlassVault() {
         lastAssetUpdate,
         reserveRatio,
         isSolvent,
-        isError: !!(totalLiabilitiesError || totalAssetsError),
+        isError: hasError,
+        isLoading,
     };
 }
