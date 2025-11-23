@@ -76,6 +76,7 @@ Behind the scenes, VPoR combines three core components â€“ what we call the **â€
 
 - **The Engine: Custom EVVM Chain (MATE)**
   - A permissioned virtual blockchain optimized for high-frequency exchange accounting.
+  - **GlassVaultEVVM**: The core contract that tracks liabilities and assets.
   - Only two actors can write:
     - The exchange backend (updates liabilities).
     - Chainlink (updates assets).

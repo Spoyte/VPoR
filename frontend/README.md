@@ -60,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ### 🔄 Next Steps
 
-- Connect to actual VPoR Chain (EVVM testnet)
+- Connect to actual VPoR Chain (GlassVaultEVVM)
 - Replace mock data with contract reads
 - Implement real `eth_decrypt` for privacy
 - Add Merkle proof verification

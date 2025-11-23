@@ -40,8 +40,8 @@ We use Chainlink to bridge "Real World Assets" (BTC Cold Wallets, Bank APIs) to 
 * **The Flow:**
   1. **Chainlink Function** queries the Bitcoin Blockchain/Bank API.
   2. It verifies the balance of the Exchange's Cold Wallet.
-  3. The Chainlink Oracle calls the **EVVM Executor Adapter**.
-  4. The Adapter (Whitelisted) executes the GlassVault.updateAssets() transaction on the Virtual Chain.
+  3. The Chainlink Oracle calls the **ChainlinkEVVMBridge** on Sepolia.
+  4. The Bridge (Whitelisted) calls `GlassVaultEVVM.updateVerifiedAssets()` on the Virtual Chain.
 
 ### 3. Privacy: ECIES Encryption
 
@@ -74,19 +74,19 @@ npx evvm-deploy --network sepolia --name "VPoR Chain" --permissioned true
 ### 2. Whitelist the Executors
 
 ```bash
-# Whitelist the Exchange Admin and the Chainlink Adapter
+# Whitelist the Exchange Admin and the Chainlink Bridge
 npx evvm-admin add-executor --chain 0xMyCustomChain --address $EXCHANGE_ADMIN
-npx evvm-admin add-executor --chain 0xMyCustomChain --address $CHAINLINK_ADAPTER
+npx evvm-admin add-executor --chain 0xMyCustomChain --address $CHAINLINK_BRIDGE
 ```
 
 ### 3. Deploy Logic & Run Auditor
 
 ```bash
-# Deploy the GlassVault contract to the custom chain
-forge create --rpc-url $VPOR_CHAIN_RPC src/GlassVault.sol:GlassVault
+# Deploy the GlassVaultEVVM contract to the custom chain
+forge create --rpc-url $VPOR_CHAIN_RPC src/GlassVaultEVVM.sol:GlassVaultEVVM
 
 # Run the Chainlink simulation to verify assets
-npx hardhat functions-simulate --script ./verify_assets.js
+node contracts/chainlink/sim.js
 ```
 
 ### 4. Start the Frontend
