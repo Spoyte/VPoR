@@ -89,7 +89,17 @@ forge create --rpc-url $VPOR_CHAIN_RPC src/GlassVaultEVVM.sol:GlassVaultEVVM
 node contracts/chainlink/sim.js
 ```
 
-### 4. Start the Frontend
+### 4. Run the Backend (The Engine)
+
+```bash
+cd backend
+npm install
+
+# Submit Liability Proofs to the Chain
+GLASS_VAULT_ADDRESS=<DEPLOYED_ADDRESS> npx ts-node src/fisher.ts
+```
+
+### 5. Start the Frontend
 
 ```bash
 cd frontend
