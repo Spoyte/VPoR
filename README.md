@@ -2,6 +2,10 @@
 
 **A sovereign, permissioned Virtual Blockchain for Transparent Crypto Custody.**
 
+> 🚀 **Hackathon MVP Status:** Functional demo running! See [QUICKSTART.md](QUICKSTART.md) to run it locally in 5 minutes.
+
+![VPoR Dashboard](/home/zodia-ubuntu/.gemini/antigravity/brain/0f67b18a-6d02-4b39-8223-74e54e31a89a/uploaded_image_1763889895328.png)
+
 ## 💡 The Problem
 
 Centralized Exchanges (CEXs) operate as black boxes. "Proof of Reserve" (PoR) snapshots are often outdated, opaque, and rely on the exchange's own website for verification. Users cannot easily verify their specific inclusion in the liability set without privacy leaks.
@@ -61,48 +65,42 @@ We use Chainlink to bridge "Real World Assets" (BTC Cold Wallets, Bank APIs) to 
 * **Prize:** "Connect the World with Chainlink"
 * **Implementation:** We use **Chainlink Functions** to fetch off-chain asset data and act as a **Whitelisted Executor** on our custom chain, bringing trusted external truth to the internal ledger.
 
-## 🚀 How to Run
+## ✅ What We Built (Hackathon MVP)
 
-### 1. Deploy the VPoR Chain (Custom EVVM)
+ This hackathon demo showcases the core VPoR concept with:
 
-```bash
-# Deploy EVVM Core with whitelist enabled
-npx evvm-deploy --network sepolia --name "VPoR Chain" --permissioned true
-# Output: EVVM Core deployed at 0xMyCustomChain...
-```
+- ✅ **Smart Contracts:** `GlassVaultEVVM` deployed and working
+- ✅ **Backend Engine:** Merkle Sum Tree generation + proof submission
+- ✅ **Frontend:** Glassmorphism UI displaying live solvency data
+- ✅ **Local Testing:** Full E2E flow on Anvil
 
-### 2. Whitelist the Executors
+### Demo Features
+- **Public Dashboard:** View total liabilities (7.50 ETH from Merkle Tree)
+- **Sync Status:** Real-time indicator (green/yellow/red)
+- **Modern UI:** Beautiful glassmorphism design
+- **Contract Integration:** Live reads from deployed `GlassVaultEVVM`
 
-```bash
-# Whitelist the Exchange Admin and the Chainlink Bridge
-npx evvm-admin add-executor --chain 0xMyCustomChain --address $EXCHANGE_ADMIN
-npx evvm-admin add-executor --chain 0xMyCustomChain --address $CHAINLINK_BRIDGE
-```
+### Known Limitations (Hackathon Scope)
+- Assets verification via Chainlink Functions not yet integrated
+- User-specific proof decryption (eth_decrypt) not implemented
+- Currently running on local Anvil (Sepolia deployment guide provided)
 
-### 3. Deploy Logic & Run Auditor
+## 🚀 Quick Start
 
-```bash
-# Deploy the GlassVaultEVVM contract to the custom chain
-forge create --rpc-url $VPOR_CHAIN_RPC src/GlassVaultEVVM.sol:GlassVaultEVVM
+**Want to run it yourself? See [QUICKSTART.md](QUICKSTART.md) for a 5-minute setup guide.**
 
-# Run the Chainlink simulation to verify assets
-node contracts/chainlink/sim.js
-```
+### Or follow these steps:
 
-### 4. Run the Backend (The Engine)
+1. **Start Anvil** - `cd contracts && anvil`
+2. **Deploy Contract** - `forge script script/DeployGlassVault.s.sol --broadcast`
+3. **Submit Proofs** - `cd backend && GLASS_VAULT_ADDRESS=<addr> npx ts-node src/fisher.ts`
+4. **Start Frontend** - `cd frontend && npm run dev`
+5. **Open Browser** - http://localhost:3000
 
-```bash
-cd backend
-npm install
+## 📚 Documentation
 
-# Submit Liability Proofs to the Chain
-GLASS_VAULT_ADDRESS=<DEPLOYED_ADDRESS> npx ts-node src/fisher.ts
-```
-
-### 5. Start the Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- **[QUICKSTART.md](QUICKSTART.md)** - Get running in 5 minutes
+- **[architecture.md](architecture.md)** - System architecture deep dive
+- **[contracts/README.md](contracts/README.md)** - Smart contract details
+- **[backend/README.md](backend/README.md)** - Backend scripts and Merkle logic
+- **[backend/TESTING.md](backend/TESTING.md)** - Testing instructions
