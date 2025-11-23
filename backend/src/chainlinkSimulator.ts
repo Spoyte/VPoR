@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../contracts/.env.example") })
 
 // ABI for updateVerifiedAssets
 const GLASS_VAULT_ABI = [
-    "function updateVerifiedAssets(uint256 _amount) external",
+    "function updateVerifiedAssets(uint256 _amount, string _assetType) external",
     "function totalAssets() view returns (uint256)",
     "function totalLiabilities() view returns (uint256)",
 ];
@@ -53,7 +53,7 @@ async function simulateChainlinkAssetVerification() {
         console.log(`  Setting Assets: ${ethers.formatEther(assetAmount)} ETH`);
 
         try {
-            const tx = await glassVault.updateVerifiedAssets(assetAmount);
+            const tx = await glassVault.updateVerifiedAssets(assetAmount, "Bitcoin Cold Wallet");
             console.log(`  Transaction: ${tx.hash}`);
             await tx.wait();
             console.log(`  ✅ Assets verified and updated on-chain`);
@@ -84,7 +84,7 @@ async function simulateChainlinkAssetVerification() {
     console.log(`Initial Update: ${initialScenario.description}`);
     console.log(`Setting Assets: ${ethers.formatEther(initialAssets)} ETH\n`);
 
-    const tx = await glassVault.updateVerifiedAssets(initialAssets);
+    const tx = await glassVault.updateVerifiedAssets(initialAssets, "Bitcoin Cold Wallet");
     await tx.wait();
     console.log(`✅ Initial assets set!\n`);
     console.log("Monitoring will update every 10 seconds...");
