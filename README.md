@@ -1,67 +1,98 @@
-# VPoR: Verifiable Proof of Reserves & Solvency
-A privacy-preserving, decentralized auditing layer for Centralized Exchanges.
-💡 The Problem
-Centralized Exchanges (CEXs) operate as black boxes. Users deposit funds and receive a database entry in return. While "Proof of Reserve" (PoR) has become popular, it often lacks:
- * Real-time granularity: Monthly audits are not enough.
- * User Verification: Users cannot easily verify their specific balance is included in the liability calculations without privacy leaks.
- * Standardization: Every exchange builds their own proprietary "transparency" page.
-🛡️ The Solution: VPoR (Virtual Proof of Reserves)
-VPoR is a Glass Vault architecture. It creates a "Shadow Ledger" on a Virtual Blockchain (EVVM) that mirrors the exchange's internal accounting in real-time, while using Chainlink to bridge real-world asset data on-chain.
-Users can independently verify:
- * Solvency: Total Assets (Verified by Chainlink) >= Total Liabilities (Verified by EVVM).
- * Inclusion: Their specific account balance is included in the Total Liabilities, using encrypted on-chain proofs.
-🏗️ Architecture
-The system consists of two pillars: Liabilities (what the exchange owes) and Assets (what the exchange holds).
-1. The Liability Ledger (Powered by EVVM)
-We use the MATE Metaprotocol (EVVM) to create a high-speed, transparent ledger of all user deposits and withdrawals.
- * Why EVVM?
-   * Cost & Scale: Tracking every user deposit on Ethereum Mainnet is prohibitively expensive. EVVM allows us to deploy a dedicated "Virtual Chain" on Sepolia that handles high-throughput accounting at a fraction of the cost.
-   * Async Nonces: A critical feature for Exchanges. Unlike standard EVM chains where transactions must be ordered sequentially (nonce 1, 2, 3...), EVVM allows Async Nonces. This means the Exchange can push thousands of batch updates in parallel without worrying about one failed transaction blocking the queue.
- * How it works:
-   * The Exchange deploys a GlassVault contract on MATE.
-   * Daily (or hourly), the Exchange pushes a Merkle Sum Tree Root representing the current state of all user balances.
-   * Privacy: Individual account updates are stored on-chain but encrypted using ECIES (Elliptic Curve Integrated Encryption Scheme). Only the specific user can decrypt their row to verify their balance.
-2. The Asset Verifier (Powered by Chainlink)
-We use Chainlink to act as the trusted bridge between the Exchange's physical vaults (Cold Wallets, Fiat Bank Accounts) and the EVVM Ledger.
- * Why Chainlink?
-   * The EVVM contract cannot see how much Bitcoin is in a Cold Wallet or how much USD is in a Bank Account.
-   * We need a decentralized, tamper-proof method to fetch this data so the "Total Assets" variable in our contract is trustworthy.
- * How it works:
-   * Chainlink Functions: We deploy a Function that queries external APIs (e.g., Blockcypher for BTC balances, or a Banking API for Fiat).
-   * The Function verifies the balance of the Exchange's known cold wallets.
-   * It returns the uint256 total balance to the GlassVault contract on MATE.
-   * This updates the totalAssets state variable, which the contract automatically compares against totalLiabilities to assert Solvency.
-🔐 Privacy & User Verification
-We believe in "Don't Trust, Verify", but also "Don't Dox Yourself".
- * Merkle Sum Tree:
-   * The contract stores a Merkle Root of all liabilities.
-   * Each node contains Hash(User_ID, Balance) and Sum(Child_Balances).
-   * The Magic: This allows the contract to mathematically prove that Sum(All_Users) == Total_Liabilities without revealing any individual user's balance to the public.
- * Encrypted Metadata (ECIES):
-   * When the exchange records a deposit, it emits an event with encrypted metadata.
-   * Public View: Update: 0x7a9... (Random Hex)
-   * User View: The user's wallet (Metamask) uses eth_decrypt to decode the hex. They see: "Deposit: $5,000 USDC - Included in Block #99912".
-🚀 How to Run
-Prerequisites
- * Node.js & Yarn
- * Foundry (for EVVM contracts)
- * Metamask (for local decryption)
-1. Deploy the Ledger (EVVM)
+# VPoR: Verifiable Proof of Reserves (Permissioned EVVM Chain)
 
-2. Run the Chainlink Function (Asset Check)
-cd assets-verifier
-npm install
-# Simulates fetching the balance of a "Cold Wallet"
-npx hardhat functions-simulate --script ./verify-btc-balance.js
+**A sovereign, permissioned Virtual Blockchain for Transparent Crypto Custody.**
 
-3. Start the Frontend
+## 💡 The Problem
+
+Centralized Exchanges (CEXs) operate as black boxes. "Proof of Reserve" (PoR) snapshots are often outdated, opaque, and rely on the exchange's own website for verification. Users cannot easily verify their specific inclusion in the liability set without privacy leaks.
+
+## 🛡️ The Solution: The VPoR Chain
+
+VPoR is a **Custom Virtual Blockchain (EVVM)** dedicated solely to transparent accounting.
+
+Unlike a standard dApp, our chain is **Permissioned**.
+
+* **Write Access:** Restricted to the Exchange (for liabilities) and Chainlink Oracles (for assets).
+* **Read Access:** Public. Anyone can verify the state, but no one can spam the chain.
+
+By deploying a custom EVVM instance, we achieve:
+
+1. **Spam-Proof Ledger:** Only authorized entities can execute transactions, ensuring the ledger remains a pure, immutable record of solvency.
+2. **Gasless Verification:** Users verify their balances for free by querying the chain state; they never need to pay gas to "check" their status.
+3. **High Throughput:** We utilize **Async Nonces** to process thousands of liability updates in parallel, unblocked by mainnet sequence constraints.
+
+## 🏗️ Architecture
+
+### 1. The Ledger: Permissioned VPoR Chain (EVVM)
+
+We deployed a custom EVVM instance on Sepolia. This "Blockchain-within-a-Blockchain" acts as the immutable public bulletin board.
+
+* **Host Chain:** Sepolia (inherits security).
+* **Access Control:** We configure the **Executor Whitelist** on the EVVM Core contract.
+  * Executor A: Exchange Backend (Updates Liabilities).
+  * Executor B: Chainlink Adapter (Updates Assets).
+  * *All other write attempts revert.*
+
+### 2. The Verifier: Chainlink Functions
+
+We use Chainlink to bridge "Real World Assets" (BTC Cold Wallets, Bank APIs) to our Virtual Chain.
+
+* **The Flow:**
+  1. **Chainlink Function** queries the Bitcoin Blockchain/Bank API.
+  2. It verifies the balance of the Exchange's Cold Wallet.
+  3. The Chainlink Oracle calls the **EVVM Executor Adapter**.
+  4. The Adapter (Whitelisted) executes the GlassVault.updateAssets() transaction on the Virtual Chain.
+
+### 3. Privacy: ECIES Encryption
+
+* **Public State:** The chain shows a Merkle Root of all liabilities.
+* **Private State:** The chain emits encrypted event logs.
+* **User Experience:** Users connect their wallet. The frontend decrypts the event logs locally to reveal: *"Your 5.5 ETH is included in the solvency proof of Block #102."*
+
+## 🏆 Hackathon Tracks
+
+### EVVM / MATE
+
+* **Prize:** "Your custom Service or EVVM Chain"
+* **Implementation:** We instantiated a **Permissioned EVVM** specifically designed for high-frequency liability tracking. We leverage **Async Nonces** to batch update user balances in parallel, solving the bottleneck of sequential nonce auditing.
+
+### Chainlink
+
+* **Prize:** "Connect the World with Chainlink"
+* **Implementation:** We use **Chainlink Functions** to fetch off-chain asset data and act as a **Whitelisted Executor** on our custom chain, bringing trusted external truth to the internal ledger.
+
+## 🚀 How to Run
+
+### 1. Deploy the VPoR Chain (Custom EVVM)
+
+```bash
+# Deploy EVVM Core with whitelist enabled
+npx evvm-deploy --network sepolia --name "VPoR Chain" --permissioned true
+# Output: EVVM Core deployed at 0xMyCustomChain...
+```
+
+### 2. Whitelist the Executors
+
+```bash
+# Whitelist the Exchange Admin and the Chainlink Adapter
+npx evvm-admin add-executor --chain 0xMyCustomChain --address $EXCHANGE_ADMIN
+npx evvm-admin add-executor --chain 0xMyCustomChain --address $CHAINLINK_ADAPTER
+```
+
+### 3. Deploy Logic & Run Auditor
+
+```bash
+# Deploy the GlassVault contract to the custom chain
+forge create --rpc-url $VPOR_CHAIN_RPC src/GlassVault.sol:GlassVault
+
+# Run the Chainlink simulation to verify assets
+npx hardhat functions-simulate --script ./verify_assets.js
+```
+
+### 4. Start the Frontend
+
+```bash
 cd frontend
-yarn install
-yarn dev
-
- * Connect Metamask.
- * Click "Decrypt My History" to verify your private inclusion in the public ledger.
-🏆 Hackathon Tracks
- * EVVM / MATE: Utilizes the MATE Metaprotocol to build a high-volume custom service ("Shadow Ledger") that leverages Async Nonces for parallel batch processing of exchange data.
- * Chainlink: Implements Chainlink Functions to solve the "Off-Chain Asset Verification" problem, creating a decentralized bridge for Proof of Reserves.
- * 
+npm install
+npm run dev
+```
